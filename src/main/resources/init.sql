@@ -1,0 +1,12 @@
+CREATE SCHEMA IF NOT EXISTS logs;
+USE logs;
+CREATE TABLE IF NOT EXISTS log
+(
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  date DATE,
+  ip VARCHAR(50),
+  request VARCHAR(100),
+  status VARCHAR(50),
+  user_agent VARCHAR(100),
+  CONSTRAINT pk_log PRIMARY KEY(id)
+);
