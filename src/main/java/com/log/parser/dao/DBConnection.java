@@ -1,11 +1,10 @@
 package com.log.parser.dao;
 
-import org.apache.commons.dbcp2.BasicDataSource;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.beans.PropertyVetoException;
+import java.io.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -14,35 +13,67 @@ import java.util.Properties;
  */
 public class DBConnection {
 
-    private Connection connection;
 
-    public Connection getConnection() {
+        private static DBConnection dataSource;
+        private ComboPooledDataSource comboPooledDataSource;
 
-        Properties prop = getAppProperties();
-        try {
-            BasicDataSource ds = new BasicDataSource();
-            ds.setDriverClassName(prop.getProperty("db-driver"));
-            ds.setUrl(prop.getProperty("db-url"));
-            ds.setUsername(prop.getProperty("db-user"));
-            ds.setPassword(prop.getProperty("db-password"));
-            ds.setMinIdle(5);
-            ds.setMaxIdle(10);
-            ds.setMaxOpenPreparedStatements(100);
-            connection = ds.getConnection();
-        } catch (SQLException e) {
-            System.out.println("MySQL Connection Failed!");
-            e.printStackTrace();
+        private DBConnection() {
+
+            FileInputStream in = null;
+            Connection con = null;
+
+            try {
+                Properties props = getAppProperties();
+
+                String driver = props.getProperty("jdbc.driver");
+//                if (driver != null) {
+//                    Class.forName(driver);
+//                }
+
+                String url = props.getProperty("jdbc.url");
+                String username = props.getProperty("jdbc.username");
+                String password = props.getProperty("jdbc.password");
+
+                comboPooledDataSource = new ComboPooledDataSource();
+                comboPooledDataSource
+                        .setDriverClass(driver);
+                comboPooledDataSource
+                        .setJdbcUrl(url);
+                comboPooledDataSource.setUser(username);
+                comboPooledDataSource.setPassword(password);
+
+            } catch (IOException | PropertyVetoException e) {
+                e.printStackTrace();
+            }
         }
-        return connection;
-    }
 
-    private Properties getAppProperties() {
+        public static DBConnection getInstance() {
+            if (dataSource == null)
+                dataSource = new DBConnection();
+            return dataSource;
+        }
+
+        public Connection getConnection() {
+            Connection con = null;
+
+            try {
+                con = comboPooledDataSource.getConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return con;
+        }
+
+    private Properties getAppProperties() throws IOException {
         Properties prop = new Properties();
-        String propFileName = "/application.properties";
+        String propFileName = "config.properties";
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propFileName)) {
-                    prop.load(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            if (inputStream != null) {
+                prop.load(inputStream);
+            } else {
+                throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
+            }
         }
         return prop;
     }

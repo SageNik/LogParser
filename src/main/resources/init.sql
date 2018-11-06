@@ -4,9 +4,9 @@ CREATE TABLE IF NOT EXISTS log
 (
   id BIGINT NOT NULL AUTO_INCREMENT,
   date DATE,
-  ip VARCHAR(50),
-  request VARCHAR(100),
-  status VARCHAR(50),
-  user_agent VARCHAR(100),
+  ip VARCHAR(100),
+  request VARCHAR(200),
+  status VARCHAR(100),
+  user_agent VARCHAR(500),
   CONSTRAINT pk_log PRIMARY KEY(id)
 );

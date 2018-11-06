@@ -2,6 +2,7 @@ package com.log.parser.dao;
 
 import com.log.parser.domain.Log;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 public class LogDao {
 
     public void save(Log currentLog){
-        DBConnection connection = new DBConnection();
+        DBConnection connection = DBConnection.getInstance();
         try (Connection con = connection.getConnection();
              PreparedStatement statement = getPreparedStatement(con, currentLog)){
             statement.executeUpdate();
@@ -28,8 +29,9 @@ public class LogDao {
         preparedStatement.setLong(1, 0);
         preparedStatement.setDate(2, new java.sql.Date(currentLog.getDate().getTime()));
         preparedStatement.setString(3, currentLog.getIp());
-        preparedStatement.setString(4, currentLog.getStatus());
-        preparedStatement.setString(5, currentLog.getUserAgent());
+        preparedStatement.setString(4,currentLog.getRequest());
+        preparedStatement.setString(5, currentLog.getStatus());
+        preparedStatement.setString(6, currentLog.getUserAgent());
 
         return preparedStatement;
     }
