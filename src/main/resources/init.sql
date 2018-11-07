@@ -3,7 +3,7 @@ USE logs;
 CREATE TABLE IF NOT EXISTS log
 (
   id BIGINT NOT NULL AUTO_INCREMENT,
-  date DATE,
+  log_date TIMESTAMP,
   ip VARCHAR(100),
   request VARCHAR(200),
   status VARCHAR(100),

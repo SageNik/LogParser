@@ -2,6 +2,7 @@ package com.log.parser.domain;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -15,14 +16,14 @@ import java.util.Date;
 public class Log {
 
     private Long id;
-    private Date date;
+    private LocalDateTime logDate;
     private String ip;
     private String request;
     private String status;
     private String userAgent;
 
-    public Log(Date date, String ip, String request, String status, String userAgent) {
-        this.date = date;
+    public Log(LocalDateTime date, String ip, String request, String status, String userAgent) {
+        this.logDate = date;
         this.ip = ip;
         this.request = request;
         this.status = status;

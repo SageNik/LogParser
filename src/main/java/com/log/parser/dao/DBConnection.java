@@ -26,10 +26,6 @@ public class DBConnection {
                 Properties props = getAppProperties();
 
                 String driver = props.getProperty("jdbc.driver");
-//                if (driver != null) {
-//                    Class.forName(driver);
-//                }
-
                 String url = props.getProperty("jdbc.url");
                 String username = props.getProperty("jdbc.username");
                 String password = props.getProperty("jdbc.password");
