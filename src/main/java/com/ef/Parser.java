@@ -1,27 +1,18 @@
-package com.log.parser;
+package com.ef;
 
-import com.log.parser.dao.DBConnection;
-import com.log.parser.dao.LogDao;
-import com.log.parser.domain.Log;
-import com.log.parser.service.LogService;
-import com.log.parser.util.Duration;
+import com.ef.service.LogService;
+import com.ef.util.Duration;
 
-import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
 
 /**
  * Created by Ник on 05.11.2018.
  */
-public class Main {
+public class Parser {
 
     public static void main(String[] args) {
 
@@ -62,8 +53,8 @@ public class Main {
         }else System.out.println("Sorry, invalid incoming data");
         if (pathLogFile != null && startDate != null && duration != null && threshold != null) {
 
-//            logService.parseLogFile(pathLogFile);
-            List<String> foundLogIps = logService.findAllLogIpsByParams(startDate,duration, threshold);
+            logService.parseLogFile(pathLogFile);
+            List<String> foundLogIps = logService.blockIp(startDate,duration, threshold);
             logService.printResultToConsol(foundLogIps);
 
         }else System.out.println("Sorry, invalid incoming data");

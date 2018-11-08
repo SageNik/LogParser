@@ -1,4 +1,4 @@
-package com.log.parser.dao;
+package com.ef.dao;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 

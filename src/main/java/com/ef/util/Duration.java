@@ -1,4 +1,4 @@
-package com.log.parser.util;
+package com.ef.util;
 
 /**
  * Created by Ник on 05.11.2018.

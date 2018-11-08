@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>TestTask</groupId>
-    <artifactId>log-parser</artifactId>
+    <artifactId>parser</artifactId>
     <packaging>jar</packaging>
     <version>1</version>
 
@@ -68,11 +68,13 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
 
-                            <mainClass>com.log.parser.Main</mainClass>
+                            <mainClass>com.ef.Parser</mainClass>
+
                         </manifest>
                     </archive>
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>${project.artifactId}</finalName>
     </build>
 </project>

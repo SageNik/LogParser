@@ -1,8 +1,8 @@
-package com.log.parser.service;
+package com.ef.service;
 
-import com.log.parser.dao.LogDao;
-import com.log.parser.domain.Log;
-import com.log.parser.util.Duration;
+import com.ef.dao.LogDao;
+import com.ef.util.Duration;
+import com.ef.domain.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +24,7 @@ public class LogService {
 
     public void parseLogFile(String pathLogFile) {
 
+        System.out.println("Start to parse log file with path "+pathLogFile+". It takes some time.....");
         File logFile = new File(pathLogFile);
         try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
             String line = null;
@@ -39,6 +40,7 @@ public class LogService {
 
     private void parseOneLine(String line) throws ParseException {
         String[] logLine = line.split("\\|");
+        List<Log>parsedLogs = new ArrayList<>();
         if (logLine.length == 5) {
             Log currentLog = new Log();
             SimpleDateFormat logDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
@@ -48,14 +50,30 @@ public class LogService {
             currentLog.setStatus(logLine[3]);
             currentLog.setUserAgent(logLine[4]);
 
-            logDao.save(currentLog);
+            parsedLogs.add(currentLog);
         }
+        logDao.save(parsedLogs);
     }
 
-    public List<String> findAllLogIpsByParams(LocalDateTime startDate, Duration duration, Integer threshold) {
+    public List<String> blockIp(LocalDateTime startDate, Duration duration, Integer threshold) {
+        LocalDateTime endDate = getEndDate(startDate, duration);
+        List<String> foundIps = new ArrayList<>();
+        System.out.println("Start block ip by threshold= "+threshold+" for a period from " + startDate + " to " + endDate);
+
+        if (endDate != null) {
+            foundIps = findAllLogIpsByParams(startDate, endDate, threshold);
+
+            if (!foundIps.isEmpty()) {
+                String reason = "More than " + threshold + " request for a period from " + startDate + " to " + endDate;
+                foundIps.forEach(ip -> logDao.saveBlocked(ip, reason));
+            }
+        }
+        return foundIps;
+    }
+
+    private List<String> findAllLogIpsByParams(LocalDateTime startDate, LocalDateTime endDate, Integer threshold) {
 
         List<String> foundIps = new ArrayList<>();
-        LocalDateTime endDate = getEndDate(startDate, duration);
         if (endDate != null) {
             foundIps = logDao.findAllIpsByParams(startDate, endDate, threshold);
         }

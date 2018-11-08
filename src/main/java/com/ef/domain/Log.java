@@ -1,4 +1,4 @@
-package com.log.parser.domain;
+package com.ef.domain;
 
 import lombok.*;
 
