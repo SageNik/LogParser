@@ -50,7 +50,7 @@ public class LogDao {
 
     private PreparedStatement getSaveBlockedStatement(Connection con, String ip, String reason) throws SQLException {
 
-        String query = "INSERT INTO log.blocked (id, ip, reason) VALUES(?,?,?)";
+        String query = "INSERT INTO logs.blocked (id, ip, reason) VALUES(?,?,?)";
         PreparedStatement statement = con.prepareStatement(query);
         statement.setLong(1, 0);
         statement.setString(2, ip);
