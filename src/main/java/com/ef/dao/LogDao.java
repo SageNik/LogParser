@@ -65,6 +65,7 @@ public class LogDao {
 
         final int batchSize = 1000;
         int count = 0;
+        con.setAutoCommit(false);
 
         for (Log currentLog : currentLogs) {
             preparedStatement.setLong(1, 0);
@@ -77,10 +78,14 @@ public class LogDao {
 
             if (++count % batchSize == 0) {
                 preparedStatement.executeBatch();
+                con.commit();
+                preparedStatement.clearBatch();
             }
         }
         preparedStatement.executeBatch();
+        con.commit();
         preparedStatement.close();
+        con.setAutoCommit(true);
 
         return preparedStatement;
     }

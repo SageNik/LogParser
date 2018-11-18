@@ -1,8 +1,7 @@
 package com.ef.dao;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.zaxxer.hikari.HikariDataSource;
 
-import java.beans.PropertyVetoException;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,30 +14,29 @@ public class DBConnection {
 
 
         private static DBConnection dataSource;
-        private ComboPooledDataSource comboPooledDataSource;
+        private HikariDataSource hikariDataSource;
 
         private DBConnection() {
-
-            FileInputStream in = null;
-            Connection con = null;
 
             try {
                 Properties props = getAppProperties();
 
-                String driver = props.getProperty("jdbc.driver");
                 String url = props.getProperty("jdbc.url");
                 String username = props.getProperty("jdbc.username");
                 String password = props.getProperty("jdbc.password");
 
-                comboPooledDataSource = new ComboPooledDataSource();
-                comboPooledDataSource
-                        .setDriverClass(driver);
-                comboPooledDataSource
-                        .setJdbcUrl(url);
-                comboPooledDataSource.setUser(username);
-                comboPooledDataSource.setPassword(password);
+                hikariDataSource = new HikariDataSource();
+                hikariDataSource.setJdbcUrl(url);
+                hikariDataSource.setUsername(username);
+                hikariDataSource.setPassword(password);
+                hikariDataSource.setMaximumPoolSize(10);
+                hikariDataSource.setMinimumIdle(2);
+                hikariDataSource.addDataSourceProperty("cachePrepStmts", "true");
+                hikariDataSource.addDataSourceProperty("prepStmtCacheSize", "250");
+                hikariDataSource.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+                hikariDataSource.addDataSourceProperty("useServerPrepStmts", "true");
 
-            } catch (IOException | PropertyVetoException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -53,7 +51,7 @@ public class DBConnection {
             Connection con = null;
 
             try {
-                con = comboPooledDataSource.getConnection();
+                con = hikariDataSource.getConnection();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
