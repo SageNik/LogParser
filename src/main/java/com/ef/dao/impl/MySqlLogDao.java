@@ -1,5 +1,7 @@
-package com.ef.dao;
+package com.ef.dao.impl;
 
+import com.ef.dao.DBConnection;
+import com.ef.dao.interfaces.LogDao;
 import com.ef.domain.Log;
 
 import java.sql.*;
@@ -10,7 +12,7 @@ import java.util.List;
 /**
  * Created by Ник on 06.11.2018.
  */
-public class LogDao {
+public class MySqlLogDao implements LogDao {
 
     public void save(List<Log> currentLogs) {
         DBConnection connection = DBConnection.getInstance();
@@ -72,7 +74,7 @@ public class LogDao {
             preparedStatement.setTimestamp(2, Timestamp.valueOf(currentLog.getLogDate()));
             preparedStatement.setString(3, currentLog.getIp());
             preparedStatement.setString(4, currentLog.getRequest());
-            preparedStatement.setString(5, currentLog.getStatus());
+            preparedStatement.setInt(5, currentLog.getStatus());
             preparedStatement.setString(6, currentLog.getUserAgent());
             preparedStatement.addBatch();
 
@@ -100,5 +102,10 @@ public class LogDao {
         preparedStatement.setString(2, Timestamp.valueOf(endDate).toString());
         preparedStatement.setInt(3, threshold);
         return preparedStatement;
+    }
+
+    @Override
+    public boolean saveLogs(List<Log> logs) {
+        return false;
     }
 }

@@ -3,11 +3,7 @@ package com.ef.domain;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-/**
- * Created by Ник on 06.11.2018.
- */
 @NoArgsConstructor
 @Getter
 @Setter
@@ -19,10 +15,10 @@ public class Log {
     private LocalDateTime logDate;
     private String ip;
     private String request;
-    private String status;
+    private Integer status;
     private String userAgent;
 
-    public Log(LocalDateTime date, String ip, String request, String status, String userAgent) {
+    public Log(LocalDateTime date, String ip, String request, Integer status, String userAgent) {
         this.logDate = date;
         this.ip = ip;
         this.request = request;

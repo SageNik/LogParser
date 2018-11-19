@@ -1,7 +1,17 @@
 package com.ef;
 
-import com.ef.service.LogService;
+import com.ef.dao.impl.MySqlBlockedIpDao;
+import com.ef.dao.impl.MySqlLogDao;
+import com.ef.dao.interfaces.BlockedIpDao;
+import com.ef.dao.interfaces.LogDao;
+import com.ef.domain.BlockedIp;
+import com.ef.domain.Log;
+import com.ef.service.impl.BlockedIpServiceImpl;
+import com.ef.service.impl.LogServiceImpl;
+import com.ef.service.interfaces.BlockedIpService;
+import com.ef.service.interfaces.LogService;
 import com.ef.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,9 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-/**
- * Created by Ник on 05.11.2018.
- */
+@Slf4j
 public class Parser {
 
     public static void main(String[] args) {
@@ -20,14 +28,13 @@ public class Parser {
         LocalDateTime startDate = null;
         Duration duration = null;
         Integer threshold = null;
-        LogService logService = new LogService();
 
         String accesslogPrefix = "--accesslog=";
         String startDatePrefix = "--startDate=";
         String durationPrefix = "--duration=";
         String thresholdPrefix = "--threshold=";
 
-        if(args.length == 4) {
+        if (args.length == 4) {
             for (String arg : args) {
                 if (arg.startsWith(accesslogPrefix)) {
                     pathLogFile = arg.replace(accesslogPrefix, "");
@@ -50,13 +57,23 @@ public class Parser {
                     threshold = Integer.parseInt(arg.replace(thresholdPrefix, ""));
                 }
             }
-        }else System.out.println("Sorry, invalid incoming data");
+        } else System.out.println("Sorry, invalid incoming data");
         if (pathLogFile != null && startDate != null && duration != null && threshold != null) {
 
-            logService.parseLogFile(pathLogFile);
-            List<String> foundLogIps = logService.blockIp(startDate,duration, threshold);
-            logService.printResultToConsol(foundLogIps);
+            LogDao logDao = new MySqlLogDao();
+            LogService logService = new LogServiceImpl(logDao);
+            List<Log> parseLogs = logService.parseLogFile(pathLogFile);
+            if (logService.saveLogs(parseLogs)) {
+                BlockedIpDao blockedIpDao = new MySqlBlockedIpDao();
+                BlockedIpService blockedIpService = new BlockedIpServiceImpl(blockedIpDao);
 
-        }else System.out.println("Sorry, invalid incoming data");
+                List<String> ipsForBlock = logService.getIpsForBlock(startDate, duration, threshold);
+                List<BlockedIp> blockedIp = blockedIpService.getBlockedIps(ipsForBlock, duration.name(), threshold);
+                blockedIpService.printResultToConsol(blockedIp);
+            }
+
+        } else {
+            log.info("Sorry, invalid incoming data");
+        }
     }
 }

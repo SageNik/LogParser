@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS log
   log_date TIMESTAMP,
   ip VARCHAR(100),
   request VARCHAR(200),
-  status VARCHAR(100),
+  status int(3),
   user_agent VARCHAR(500),
   CONSTRAINT pk_log PRIMARY KEY(id)
 );
