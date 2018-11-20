@@ -1,5 +1,6 @@
 package com.ef;
 
+import com.ef.dao.MySqlDBConnection;
 import com.ef.dao.impl.MySqlBlockedIpDao;
 import com.ef.dao.impl.MySqlLogDao;
 import com.ef.dao.interfaces.BlockedIpDao;
@@ -59,17 +60,19 @@ public class Parser {
             }
         } else System.out.println("Sorry, invalid incoming data");
         if (pathLogFile != null && startDate != null && duration != null && threshold != null) {
-
-            LogDao logDao = new MySqlLogDao();
+            MySqlDBConnection dbConnection= new MySqlDBConnection();
+            LogDao logDao = new MySqlLogDao(dbConnection);
             LogService logService = new LogServiceImpl(logDao);
             List<Log> parseLogs = logService.parseLogFile(pathLogFile);
+
             if (logService.saveLogs(parseLogs)) {
-                BlockedIpDao blockedIpDao = new MySqlBlockedIpDao();
+                BlockedIpDao blockedIpDao = new MySqlBlockedIpDao(dbConnection);
                 BlockedIpService blockedIpService = new BlockedIpServiceImpl(blockedIpDao);
 
                 List<String> ipsForBlock = logService.getIpsForBlock(startDate, duration, threshold);
                 List<BlockedIp> blockedIp = blockedIpService.getBlockedIps(ipsForBlock, duration.name(), threshold);
-                blockedIpService.printResultToConsol(blockedIp);
+                blockedIpService.saveBlockedIps(blockedIp);
+                blockedIpService.printResultToConsole();
             }
 
         } else {

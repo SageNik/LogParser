@@ -17,14 +17,19 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@inheritDoc}
+ */
 @Slf4j
 public class LogServiceImpl implements LogService {
 
     private LogDao logDao;
 
     private final SimpleDateFormat logDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-    private final String IP_ADDRESS_PATTERN = "^([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.\n" +
-            "([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])\\\\.([01]?\\\\d\\\\d?|2[0-4]\\\\d|25[0-5])$";
+    private final String IP_ADDRESS_PATTERN = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+	        "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+             "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+             "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
     private final String STATUS_PATTERN = "^\\d{3}";
 
     public LogServiceImpl(LogDao logDao) {
@@ -33,8 +38,7 @@ public class LogServiceImpl implements LogService {
 
     @Override
     public List<Log> parseLogFile(String pathLogFile) {
-
-        log.info("Start to parse log file with path "+pathLogFile+". It takes some time.....");
+        System.out.println("Start to parse log file with path "+pathLogFile+". It takes some time.....");
 
         List<Log> parsedLogs = new ArrayList<>();
         File logFile = new File(pathLogFile);
@@ -42,9 +46,11 @@ public class LogServiceImpl implements LogService {
             String line = null;
             while ((line = reader.readLine()) != null) {
                Log currentLog = parseOneLine(line);
-               if(currentLog != null) parsedLogs.add(currentLog);
+               if(currentLog != null) {
+                   parsedLogs.add(currentLog);
+               }
                else{
-                   log.debug("Error! The current line hasn't been parsed as Log. line: [ "+line+" ]");
+                   log.error("Error! The current line hasn't been parsed as Log. line: [ "+line+" ]");
                }
             }
         } catch (IOException ignore) {
@@ -83,6 +89,7 @@ public class LogServiceImpl implements LogService {
             Integer status = (logLine[3].matches(STATUS_PATTERN))? Integer.parseInt(logLine[3]) : null;
             String userAgent = logLine[4];
             Log currentLog = null;
+
             if(date != null && ip != null && request != null && status != null && userAgent != null) {
                 currentLog = new Log(date, ip, request, status, userAgent);
             }

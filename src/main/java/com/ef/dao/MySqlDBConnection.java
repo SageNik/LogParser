@@ -8,15 +8,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 /**
- * Created by Ник on 05.11.2018.
+ * This class is used for getting connection to MySql database
  */
-public class DBConnection {
+public class MySqlDBConnection {
 
-
-        private static DBConnection dataSource;
         private HikariDataSource hikariDataSource;
 
-        private DBConnection() {
+        public MySqlDBConnection() {
 
             try {
                 Properties props = getAppProperties();
@@ -39,12 +37,6 @@ public class DBConnection {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        public static DBConnection getInstance() {
-            if (dataSource == null)
-                dataSource = new DBConnection();
-            return dataSource;
         }
 
         public Connection getConnection() {

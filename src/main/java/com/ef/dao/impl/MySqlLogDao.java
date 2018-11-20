@@ -1,8 +1,9 @@
 package com.ef.dao.impl;
 
-import com.ef.dao.DBConnection;
+import com.ef.dao.MySqlDBConnection;
 import com.ef.dao.interfaces.LogDao;
 import com.ef.domain.Log;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -10,23 +11,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Ник on 06.11.2018.
+ * {@inheritDoc}
  */
+@Slf4j
 public class MySqlLogDao implements LogDao {
 
-    public void save(List<Log> currentLogs) {
-        DBConnection connection = DBConnection.getInstance();
+    private final MySqlDBConnection connection;
+
+    public MySqlLogDao(MySqlDBConnection connection) {
+        this.connection = connection;
+    }
+
+    @Override
+    public boolean saveLogs(List<Log> logs) {
+
         try (Connection con = connection.getConnection()) {
-            saveLogs(con, currentLogs);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            save(con, logs);
+            return true;
+        } catch (SQLException ignore) {
+            log.error("Error. Any logs have not been saved");
+            return false;
         }
     }
 
+    @Override
     public List<String> findAllIpsByParams(LocalDateTime startDate, LocalDateTime endDate, Integer threshold) {
 
         List<String> foundIps = new ArrayList<>();
-        DBConnection connection = DBConnection.getInstance();
         try (Connection con = connection.getConnection();
              PreparedStatement statement = getSearchIpPreparedStatement(con, startDate, endDate, threshold);
              ResultSet resultSet = statement.executeQuery()) {
@@ -35,32 +46,12 @@ public class MySqlLogDao implements LogDao {
                 foundIps.add(resultSet.getString("ip"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("Error. Failed to get a logs. Error: "+e.getMessage());
         }
         return foundIps;
     }
 
-    public void saveBlocked(String ip, String reason) {
-        DBConnection connection = DBConnection.getInstance();
-        try (Connection con = connection.getConnection();
-             PreparedStatement statement = getSaveBlockedStatement(con, ip, reason)) {
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private PreparedStatement getSaveBlockedStatement(Connection con, String ip, String reason) throws SQLException {
-
-        String query = "INSERT INTO logs.blocked (id, ip, reason) VALUES(?,?,?)";
-        PreparedStatement statement = con.prepareStatement(query);
-        statement.setLong(1, 0);
-        statement.setString(2, ip);
-        statement.setString(3, reason);
-        return statement;
-    }
-
-    private PreparedStatement saveLogs(Connection con, List<Log> currentLogs) throws SQLException {
+    private PreparedStatement save(Connection con, List<Log> currentLogs) throws SQLException {
 
         String query = "INSERT INTO logs.log (id, log_date, ip, request, status, user_agent) VALUES(?,?,?,?,?,?)";
         PreparedStatement preparedStatement = con.prepareStatement(query);
@@ -104,8 +95,5 @@ public class MySqlLogDao implements LogDao {
         return preparedStatement;
     }
 
-    @Override
-    public boolean saveLogs(List<Log> logs) {
-        return false;
-    }
+
 }

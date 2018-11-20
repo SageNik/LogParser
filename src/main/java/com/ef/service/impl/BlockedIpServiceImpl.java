@@ -4,9 +4,16 @@ import com.ef.dao.interfaces.BlockedIpDao;
 import com.ef.domain.BlockedIp;
 import com.ef.service.interfaces.BlockedIpService;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@inheritDoc}
+ */
 public class BlockedIpServiceImpl implements BlockedIpService{
 
     private BlockedIpDao blockedIpDao;
@@ -33,7 +40,10 @@ public class BlockedIpServiceImpl implements BlockedIpService{
     }
 
     @Override
-    public void printResultToConsol(List<BlockedIp> blockedIps) {
+    public void printResultToConsole() {
+
+        List<BlockedIp> blockedIps = blockedIpDao.findAll();
+
         System.out.println("\t\tThe RESULTS:");
         for (BlockedIp blockedIp : blockedIps) {
             System.out.println("\t IP: "+blockedIp.getIp()+" blocked by reason: "+blockedIp.getReason());
